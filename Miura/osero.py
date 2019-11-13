@@ -3,6 +3,7 @@ from Test import *
 
 class  Board():
     
+    # メンバ変数とフィールドの初期化
     def __init__(self):
         # メンバ変数の初期化
         self.field = np.zeros([8, 8])
@@ -18,6 +19,7 @@ class  Board():
         self.field[3, 4] = self.WHITE
         self.field[4, 3] = self.WHITE
 
+    # 自身を初期化する
     def initBoard(self):
         self.__init__()
 
