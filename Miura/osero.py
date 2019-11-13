@@ -23,21 +23,27 @@ class  Board():
     def initBoard(self):
         self.__init__()
 
+    # Miura
     def GetBoard(self):
         pass
 
+    # Miura
     def PutPiece(self, x, y):
         pass
 
+    # Miura
     def PrintBoard(self):
         pass
 
+    # Ishida
     def SearchBoard(self):
         pass
 
+    # Ishida
     def CheckBoard(self, x, y):
         pass
 
+    # Ishida
     def CountPiece(self, color):
         pass
 
