@@ -1,8 +1,10 @@
+# cSpell: ignore Miura Ishida numpy
 import numpy as np
-from Test import *
+import Test
 
-class  Board():
-    
+
+class Board():
+
     # メンバ変数とフィールドの初期化
     def __init__(self):
         # メンバ変数の初期化
@@ -24,16 +26,27 @@ class  Board():
         self.__init__()
 
     # Miura
+    # 現在のボードの配列を返す
     def GetBoard(self):
-        pass
+        return self.field
 
     # Miura
+    # 指定された場所に駒を置く
+    # 置けなかったらエラーを出す
     def PutPiece(self, x, y):
-        pass
+        if(self.field[x][y] != self.EMPTY):
+            raise RuntimeError("指定された場所に駒を置くことができません。")
+        self.field[x][y] = self.turn
 
     # Miura
+    # CUIで駒を表示します。
     def PrintBoard(self):
-        pass
+        CHAR_PEACE = [" ", "o", "*"]
+        for i in self.field:
+            print(end="|")
+            for j in i:
+                print(CHAR_PEACE[int(j)], end="|")
+            print("\n------------------")
 
     # Ishida
     def SearchBoard(self):
@@ -47,6 +60,8 @@ class  Board():
     def CountPiece(self, color):
         pass
 
+
 if __name__ == "__main__":
-    test_Board()
-    test_initBoard()
+    Test.test_Board()
+    Test.test_initBoard()
+    Board().PrintBoard()

@@ -1,9 +1,12 @@
-import numpy as np
+# cSpell: ignore numpy osero
+# import numpy as np
 from osero import Board
 
+
 def test_Board():
-    b = Board()
+    Board()
     print("OK:test_Board")
+
 
 def test_initBoard():
     b = Board()
