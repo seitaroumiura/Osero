@@ -23,3 +23,19 @@ def test_initBoard():
     ]
     assert((b.field == trueBoard).all())
     print("OK:test_initBoard")
+
+
+def test_SearchBoard():
+    b = Board()
+    # TODO 色が逆になってる？
+    # b.initBoard()
+    res = b.SearchBoard(b.BLACK)
+    b.PrintBoard()
+    print(res)
+
+
+def test_putPiece():
+    b = Board()
+    b.initBoard()
+    b.PutPiece(2, 3)
+    b.PrintBoard()
