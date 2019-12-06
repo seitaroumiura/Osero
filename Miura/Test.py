@@ -11,12 +11,14 @@ def test_Board():
 def test_initBoard():
     b = Board()
     b.initBoard()
+    B = b.BLACK
+    W = b.WHITE
     trueBoard = [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 2, 1, 0, 0, 0],
-        [0, 0, 0, 1, 2, 0, 0, 0],
+        [0, 0, 0, B, W, 0, 0, 0],
+        [0, 0, 0, W, B, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -27,9 +29,25 @@ def test_initBoard():
 
 def test_SearchBoard():
     b = Board()
-    # TODO 色が逆になってる？
-    # b.initBoard()
+    B = b.BLACK
+    W = b.WHITE
+    b.field = [
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, B, W, 0, 0, 0],
+        [0, 0, 0, B, W, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    print("BLACK")
     res = b.SearchBoard(b.BLACK)
+    b.PrintBoard()
+    print(res)
+    
+    print("\nWHITE")
+    res = b.SearchBoard(b.WHITE)
     b.PrintBoard()
     print(res)
 

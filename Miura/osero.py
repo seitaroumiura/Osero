@@ -39,6 +39,7 @@ class Board():
         if not [x, y] in self.SearchBoard(self.turn):
             print(self.SearchBoard(self.turn))
             raise RuntimeError("指定された場所に駒を置くことができません。")
+        # self.turn = self.WHITE
         self.field[x][y] = self.turn
 
         # 裏返しにする方向の決定
@@ -47,23 +48,26 @@ class Board():
             [1, 1], [-1, 1], [-1, 1], [-1, -1]
         ]
         for d in directions:
-            i = 0
+            pos_x = x
+            pos_y = y
             # *pythonには浅いコピーと深いコピーがある
             # *浅いコピーでは、コピー元のデータが書き変えられると
             # *コピー先の内容も変わってしまう。
             # *https://techblog.recochoku.jp/515
             copyBoard = copy.deepcopy(self.field)
             while(True):
-                pos_x = x + d[0] * i
-                pos_y = y + d[1] * i
-
-                self.field[pos_x][pos_y] = self.turn
+                print("ok")
+                pos_x += d[0]
+                pos_y += d[1]
 
                 # 端まで行ったらループを終了
-                if not 0 < pos_x < 7 or 0 < pos_y < 7:
+                if not (0 < pos_x < 8 or 0 < pos_y < 8):
+                    print(1)
                     self.field = copyBoard
                     break
                 if self.field[pos_x][pos_y] != self.turn and self.field[pos_x][pos_y] != self.EMPTY:  # 相手の駒があった場合
+                    self.field[pos_x][pos_y] = self.turn
+                if self.field[pos_x][pos_y] == self.EMPTY:
                     self.field = copyBoard
                     break
                 if self.field[pos_x][pos_y] == self.turn:
@@ -80,6 +84,7 @@ class Board():
             print("\n------------------")
 
     # Ishida
+    # return: [y, x]
     def SearchBoard(self, color):
         c_list = np.empty((0, 2), int)
         result = np.empty((0, 2), int)
@@ -116,8 +121,68 @@ class Board():
 
 
 if __name__ == "__main__":
-    # Test.test_Board()
-    # Test.test_initBoard()
-    # Board().PrintBoard()
-    # Test.test_SearchBoard()
-    Test.test_putPiece()
+    b = Board()
+    B = b.BLACK
+    W = b.WHITE
+    b.field = [
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, B, W, 0, 0, 0],
+        [0, 0, 0, B, W, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    print("BLACK")
+    res = b.SearchBoard(b.BLACK)
+    b.PrintBoard()
+    print(res)
+    
+    print("\nWHITE")
+    res = b.SearchBoard(b.WHITE)
+    b.PrintBoard()
+    print(res)
+
+    # ### 疑問点
+    # 置ける場所の内、左横が見落とされている？
+    # ### 実行結果
+    #   BLACK
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | |*|o| | | |
+    #   ------------------
+    #   | | | |*|o| | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   [[2 2]
+    #    [3 2]]
+
+    #   WHITE
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | |*|o| | | |
+    #   ------------------
+    #   | | | |*|o| | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   | | | | | | | | |
+    #   ------------------
+    #   [[2 5]
+    #    [3 5]]
