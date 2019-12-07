@@ -1,8 +1,6 @@
 # cSpell: ignore Miura Ishida numpy
 import copy
 import numpy as np
-import Test
-
 
 class Board():
 
@@ -45,7 +43,7 @@ class Board():
         # 裏返しにする方向の決定
         directions = [
             [1, 0], [-1, 0], [0, 1], [0, -1],
-            [1, 1], [-1, 1], [-1, 1], [-1, -1]
+            [1, 1], [-1, 1], [1, -1], [-1, -1]
         ]
         for d in directions:
             pos_x = x
@@ -95,18 +93,22 @@ class Board():
                 if self.field[i][j] == 0:
                     c_list = np.append(c_list, np.array([[i, j]]), axis = 0)
         for i in range(c_list.shape[0]):
-            for j in range(2, 8):
+            check = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+            for j in range(1, 8):
                 for k in range(8):
                     if c_list[i][0] + j * tmp[k][0] >= 0 and c_list[i][0] + j * tmp[k][0] < 8 and c_list[i][1] + j * tmp[k][1] >= 0 and c_list[i][1] + j * tmp[k][1] < 8:
-                        if self.field[c_list[i][0] + tmp[k][0]][c_list[i][1] + tmp[k][1]] == color and check[k] != 2:
+                        if check[k] == 0:
                             if self.field[c_list[i][0] + j * tmp[k][0]][c_list[i][1] + j * tmp[k][1]] == color:
-                                pass
-                            elif self.field[c_list[i][0] + j * tmp[k][0]][c_list[i][1] + j * tmp[k][1]] == self.EMPTY:
+                                if j != 1:
+                                    check[k] = 1
+                                else:
+                                    check[k] = 2
+                            elif self.field[c_list[i][0] + j * tmp[k][0]][c_list[i][1] + j * tmp[k][1]] == 0:
                                 check[k] = 2
                             else:
-                                check[k] = 1
-                if 1 in check:
-                    result = np.append(result, np.array([c_list[i]]), axis = 0)
+                                pass
+            if 1 in check:
+                result = np.append(result, np.array([c_list[i]]), axis = 0)
         return result
 
     # Ishida
@@ -129,7 +131,7 @@ if __name__ == "__main__":
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, B, W, 0, 0, 0],
-        [0, 0, 0, B, W, 0, 0, 0],
+        [0, 0, 0, W, B, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
