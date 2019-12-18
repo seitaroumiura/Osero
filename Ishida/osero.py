@@ -135,6 +135,7 @@ def main():
         x, y = event.pos
         sx = (x - 200) // 80
         sy = y // 80
+        return(sx, sy)
         print("----------")
         print(b.CheckBoard(sx, sy, b.turn))
         print(np.array([[sx, sy]]))
