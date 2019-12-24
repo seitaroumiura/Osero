@@ -2,6 +2,8 @@ import sys
 import pygame as pg
 from pygame.locals import *
 import numpy as np
+import copy
+from random_player import random_player
 
 
 class Board():
@@ -23,6 +25,10 @@ class Board():
 
   def GetBoard(self):
     return self.field
+
+  # Boardクラスのコピーを返す。
+  def GetCopy(self):
+    return copy.deepcopy(self)
 
   def PutPiece(self, x, y):
     if not (np.array([[x, y]]) == self.SearchBoard(self.turn)).all(axis=1).any():
@@ -88,6 +94,15 @@ class Board():
   def CountPiece(self, color):
     return np.count_nonzero(self.field == color)
 
+  # CUIで駒を表示します。
+  def PrintBoard(self):
+    CHAR_PEACE = [" ", "o", "*"]
+    for i in self.field:
+      print(end="|")
+      for j in i:
+        print(CHAR_PEACE[int(j)], end="|")
+      print("\n------------------")
+
   # 引数
   # player1: None        人間の手で打つ
   #        : Playerクラス コンピュータ
@@ -97,10 +112,12 @@ class Board():
     SCREEN_Y = 640
     CLOCK = pg.time.Clock()
     b = Board()
+    gameover = False
     pg.init()
     screen = pg.display.set_mode((SCREEN_X, SCREEN_Y))
     pg.display.set_caption("Osero")
     CLOCK.tick(60)
+    
 
     # player1とplayer2の色を決める
     player_color = {
@@ -140,33 +157,56 @@ class Board():
     
       #quit/command
       for event in pg.event.get():
-        if event.type == QUIT:
+        # 置く場所がない
+        if len(b.SearchBoard(b.turn)) == 0:
+          # ゲーム終了
+          if len(b.SearchBoard(b.BLACK)) == 0 and len(b.SearchBoard(b.WHITE)) == 0:
+            print("Game Over")
+            if b.CountPiece(b.BLACK) > b.CountPiece(b.WHITE):
+              print("Winner: BLACK")
+              gameover = True
+            elif b.CountPiece(b.BLACK) < b.CountPiece(b.WHITE):
+              print("Winner: WHITE")
+              gameover = True
+            else:
+              gameover = True
+              print("Winner: None")
+
+          # パス
+          if b.turn == b.BLACK:
+            b.turn = b.BLACK
+          else:
+            b.turn = b.WHITE
+
+        if event.type == QUIT or gameover == True:
           pg.quit()
           sys.exit()
-        if event.type == MOUSEBUTTONDOWN and event.button == 1 or player_color[b.turn] is not None:
 
+        if event.type == MOUSEBUTTONDOWN and event.button == 1 or player_color[b.turn] is not None:
           # 人間の番    
           if player_color[b.turn] is None:
             x, y = event.pos
             sx = (x - 200) // 80
             sy = y // 80
           else:
-            sx, sy = player_color[b.turn].get_position(b.GetBoard())
+            sx, sy = player_color[b.turn].get_position(b.GetCopy())
 
-          print("----------")
-          print(b.CheckBoard(sx, sy, b.turn))
-          print(np.array([[sx, sy]]))
-          print('\n')
-          print(b.SearchBoard(b.turn))
-          print("----------")
-          if b.CheckBoard(sx, sy, b.turn):
-            b.PutPiece(sx, sy)
-            if b.turn == b.WHITE:
-              b.turn = b.BLACK
-            else:
-              b.turn = b.WHITE
+        if b.CheckBoard(sx, sy, b.turn):
+          b.PutPiece(sx, sy)
+          if b.turn == b.WHITE:
+            b.turn = b.BLACK
+          else:
+            b.turn = b.WHITE
 
+        print("----------")
+        print(b.CheckBoard(sx, sy, b.turn))
+        print(np.array([[sx, sy]]))
+        print('\n')
+        print(b.SearchBoard(b.turn))
+        print(b.PrintBoard())
+        print("----------")
+ 
 
 if __name__ == "__main__":
   b = Board()
-  b.run()
+  b.run(player1=random_player())
