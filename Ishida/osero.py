@@ -2,6 +2,9 @@ import sys
 import pygame as pg
 from pygame.locals import *
 import numpy as np
+from copy import *
+import time
+
 
 class Board():
   # メンバ変数とフィールドの初期化
@@ -173,7 +176,6 @@ def main():
   CLOCK = pg.time.Clock()
   b = Board()
   AI1 = MonteCarlo(b.WHITE, 1, 100)
-  AI2 = MonteCarlo(b.BLACK, 1, 200)
   pg.init()
   screen = pg.display.set_mode((SCREEN_X, SCREEN_Y))
   pg.display.set_caption("Osero")
@@ -234,23 +236,6 @@ def main():
       #print(num)
       sx = b.SearchBoard(b.turn)[num][0]
       sy = b.SearchBoard(b.turn)[num][1]
-      #print([sx, sy])
-      #print(b.SearchBoard(b.turn))
-      b.PutPiece(sx, sy)
-      if b.turn == b.WHITE:
-        b.turn = b.BLACK
-      else:
-        b.turn = b.WHITE
-    # MonteCarlo's Turn
-    elif b.turn == AI2.color:
-      AI2.Select(b)
-      AI2.Expand()
-      num = AI2.Choice()
-      #print(num)
-      sx = b.SearchBoard(b.turn)[num][0]
-      sy = b.SearchBoard(b.turn)[num][1]
-      #print([sx, sy])
-      #print(b.SearchBoard(b.turn))
       b.PutPiece(sx, sy)
       if b.turn == b.WHITE:
         b.turn = b.BLACK
