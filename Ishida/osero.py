@@ -88,17 +88,116 @@ class Board():
   def CountPiece(self, color):
     return np.count_nonzero(self.field == color)
 
+class MonteCarlo():
+  def __init__(self, color, depth, repeat):
+    self.color = color
+    self.Depth = depth
+    self.Repeat = repeat
+    self.Selected = []
+    self.Selected_NUM = []
+    self.Score = []
+
+  def Select(self, board):
+    self.Selected_NUM = []
+    self.Selected = [deepcopy(board)]
+    for i in range(self.Depth):
+      NextSelect = []
+      NextSelect_NUM = []
+      for j in range(len(self.Selected)):
+        lst = self.Selected[j].SearchBoard(self.Selected[j].turn)
+        for k in range(lst.shape[0]):
+          NextBoard = deepcopy(self.Selected[j])
+          NextBoard.PutPiece(lst[k][0], lst[k][1])
+          NextSelect.append(deepcopy(NextBoard))
+          if i == 0:
+            NextSelect_NUM.append(k)
+          else:
+            NextSelect_NUM.append(self.Selected_NUM[j])
+      self.Selected = NextSelect
+      self.Selected_NUM = NextSelect_NUM
+
+  def Expand(self):
+    self.Score = []
+    for i in range(len(self.Selected)):
+      win = 0
+      t1 = time.time()
+      for j in range(self.Repeat):
+        #Copy Expand Board
+        Run = deepcopy(self.Selected[i])
+        #Expand
+        while True:
+          lst = Run.SearchBoard(Run.turn)
+          P_B = Run.CountPiece(Run.BLACK)
+          P_W = Run.CountPiece(Run.WHITE)
+          #Choice & Put Piece
+          if lst.shape[0] != 0:
+            choice = np.random.randint(lst.shape[0])
+            Run.PutPiece(lst[choice][0], lst[choice][1])
+            if Run.turn == Run.WHITE:
+              Run.turn = Run.BLACK
+            else:
+              Run.turn = Run.WHITE
+          else:
+            #End Game(1)
+            if Run.SearchBoard(Run.BLACK).shape[0] == 0 and Run.SearchBoard(Run.WHITE).shape[0] == 0:
+              if P_B > P_W and self.color == Run.BLACK:
+                win += 1
+              elif P_W > P_B and self.color == Run.WHITE:
+                win += 1
+              break
+            #Skip turn
+            else:
+              if Run.turn == Run.WHITE:
+                Run.turn = Run.BLACK
+              else:
+                Run.turn = Run.WHITE
+      t2 = time.time()
+      elapsed_time = t2 - t1
+      print(f"<Debug>\n処理時間:{elapsed_time}")
+      print(win)
+      self.Score.append(win / self.Repeat)
+  
+  def Choice(self):
+    score_max = 0
+    choice = 0
+    for i in range(len(self.Score)):
+      if score_max < self.Score[i]:
+        score_max = self.Score[i]
+        choice = self.Selected_NUM[i]
+    return choice
+
+
 def main():
   SCREEN_X = 1040
   SCREEN_Y = 640
   CLOCK = pg.time.Clock()
   b = Board()
+  AI1 = MonteCarlo(b.WHITE, 1, 100)
+  AI2 = MonteCarlo(b.BLACK, 1, 200)
   pg.init()
   screen = pg.display.set_mode((SCREEN_X, SCREEN_Y))
   pg.display.set_caption("Osero")
   CLOCK.tick(60)
   while(1):
+    #Fill screen 
     screen.fill((255,255, 255))
+
+    #Check "End the Game"
+    if b.CountPiece(b.BLACK) + b.CountPiece(b.WHITE) == 64 or b.CountPiece(b.BLACK) == 0 or b.CountPiece(b.WHITE) == 0:
+      print("BRACK:" + str(b.CountPiece(b.BLACK)) + "\nWHITE:" + str(b.CountPiece(b.WHITE)))
+      pg.quit()
+      sys.exit()
+    if b.SearchBoard(b.BLACK).shape[0] == 0 and b.SearchBoard(b.WHITE).shape[0] == 0:
+      print("BRACK:" + str(b.CountPiece(b.BLACK)) + "\nWHITE:" + str(b.CountPiece(b.WHITE)))
+      pg.quit()
+      sys.exit()
+
+    #Check "Skip turn?"
+    if b.SearchBoard(b.turn).shape[0] == 0:
+      if b.turn == b.WHITE:
+        b.turn = b.BLACK
+      else:
+        b.turn = b.WHITE
 
     #draw1
     for i in range(8):
@@ -120,13 +219,44 @@ def main():
       text1 = font.render("Turn: Brack", True, (0, 0, 0))
     text2 = font.render("BRACK:" + str(b.CountPiece(b.BLACK)), True, (0, 0, 0))
     text3 = font.render("WHITE:" + str(b.CountPiece(b.WHITE)), True, (0, 0, 0))
-
     screen.blit(text1, (50, 100))
     screen.blit(text2, (900, 100))
     screen.blit(text3, (900, 150))
+
     #Update screen
     pg.display.update()
-    
+
+    # MonteCarlo's Turn
+    if b.turn == AI1.color:
+      AI1.Select(b)
+      AI1.Expand()
+      num = AI1.Choice()
+      #print(num)
+      sx = b.SearchBoard(b.turn)[num][0]
+      sy = b.SearchBoard(b.turn)[num][1]
+      #print([sx, sy])
+      #print(b.SearchBoard(b.turn))
+      b.PutPiece(sx, sy)
+      if b.turn == b.WHITE:
+        b.turn = b.BLACK
+      else:
+        b.turn = b.WHITE
+    # MonteCarlo's Turn
+    elif b.turn == AI2.color:
+      AI2.Select(b)
+      AI2.Expand()
+      num = AI2.Choice()
+      #print(num)
+      sx = b.SearchBoard(b.turn)[num][0]
+      sy = b.SearchBoard(b.turn)[num][1]
+      #print([sx, sy])
+      #print(b.SearchBoard(b.turn))
+      b.PutPiece(sx, sy)
+      if b.turn == b.WHITE:
+        b.turn = b.BLACK
+      else:
+        b.turn = b.WHITE
+
     #quit/command
     for event in pg.event.get():
       if event.type == QUIT:
@@ -136,10 +266,9 @@ def main():
         x, y = event.pos
         sx = (x - 200) // 80
         sy = y // 80
-        return(sx, sy)
         print("----------")
         print(b.CheckBoard(sx, sy, b.turn))
-        print(np.array([[sx, sy]]))
+        print([sx, sy])
         print('\n')
         print(b.SearchBoard(b.turn))
         print("----------")
@@ -151,4 +280,4 @@ def main():
             b.turn = b.WHITE
 
 if __name__ == "__main__":
-    main()
+  main()
