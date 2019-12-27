@@ -24,24 +24,23 @@ class Board():
     return self.field
 
   def PutPiece(self, x, y):
-    if not (np.array([[x, y]]) == self.SearchBoard(self.turn)).all(axis=1).any():
-      print(self.SearchBoard(self.turn))
-      raise RuntimeError("指定された場所に駒を置くことができません。")
-    tmp = np.array([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]])
-    change = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-    check = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+    tmp = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+    change = [0, 0, 0, 0, 0, 0, 0, 0]
+    check = [0, 0, 0, 0, 0, 0, 0, 0]
     for i in range(8):
       for j in range(1, 8):
-        if x + j * tmp[i][0] >= 0 and x + j * tmp[i][0] < 8 and y + j * tmp[i][1] >= 0 and y + j * tmp[i][1] < 8:
+        dx = j * tmp[i][0]
+        dy = j * tmp[i][1]
+        if x + dx >= 0 and x + dx < 8 and y + dy >= 0 and y + dy < 8:
           if check[i] == 0:
-            if self.field[x + j * tmp[i][0]][y + j * tmp[i][1]] == self.turn:
+            if self.field[x + dx][y + dy] == self.turn:
               if j != 1:
                 check[i] = 1
                 break
               else:
                 check[i] = 2
                 break
-            elif self.field[x + j * tmp[i][0]][y + j * tmp[i][1]] == 0:
+            elif self.field[x + dx][y + dy] == 0:
               check[i] = 2
               break
             else:
@@ -51,32 +50,34 @@ class Board():
           self.field[x + j * tmp[i][0]][y + j * tmp[i][1]] = self.turn
 
   def SearchBoard(self, color):
-    c_list = np.empty((0, 2), int)
-    result = np.empty((0, 2), int)
-    check = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-    tmp = np.array([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]])
+    c_list = []
+    result = []
+    check = [0, 0, 0, 0, 0, 0, 0, 0]
+    tmp = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
     for i in range(8):
       for j in range(8):
         if self.field[i][j] == 0:
-          c_list = np.append(c_list, np.array([[i, j]]), axis = 0)
-    for i in range(c_list.shape[0]):
-      check = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+          c_list.append([i, j])
+    for i in range(len(c_list)):
+      check = [0, 0, 0, 0, 0, 0, 0, 0]
       for j in range(1, 8):
         for k in range(8):
-          if c_list[i][0] + j * tmp[k][0] >= 0 and c_list[i][0] + j * tmp[k][0] < 8 and c_list[i][1] + j * tmp[k][1] >= 0 and c_list[i][1] + j * tmp[k][1] < 8:
+          sx = c_list[i][0] + j * tmp[k][0]
+          sy = c_list[i][1] + j * tmp[k][1]
+          if sx >= 0 and sx < 8 and sy >= 0 and sy < 8:
             if check[k] == 0:
-              if self.field[c_list[i][0] + j * tmp[k][0]][c_list[i][1] + j * tmp[k][1]] == color:
+              if self.field[sx][sy] == color:
                 if j != 1:
                   check[k] = 1
                 else:
                   check[k] = 2
-              elif self.field[c_list[i][0] + j * tmp[k][0]][c_list[i][1] + j * tmp[k][1]] == 0:
+              elif self.field[sx][sy] == 0:
                 check[k] = 2
               else:
                 pass
       if 1 in check:
-        result = np.append(result, np.array([c_list[i]]), axis = 0)
-    return result
+        result.append(c_list[i])
+    return np.array(result)
 
   def CheckBoard(self, x, y, color):
     if (np.array([[x, y]]) == self.SearchBoard(color)).all(axis=1).any():
